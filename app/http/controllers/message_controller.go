@@ -116,6 +116,42 @@ func (c *MessageController) Download(ctx contractshttp.Context) contractshttp.Re
 	return response.Error(ctx, apperrors.NotImplemented("Message download by ID"))
 }
 
+func (c *MessageController) Star(ctx contractshttp.Context) contractshttp.Response {
+	inst := middleware.GetInstance(ctx)
+	msgID := ctx.Request().Route("msgId")
+	chatJID := ctx.Request().Input("chatJid")
+	senderJID := ctx.Request().Input("senderJid")
+	if chatJID == "" {
+		return response.Error(ctx, apperrors.Validation("'chatJid' is required"))
+	}
+	if senderJID == "" {
+		senderJID = chatJID
+	}
+	fromMe := ctx.Request().InputBool("fromMe", false)
+	if err := c.svc.Star(inst.ID, chatJID, senderJID, msgID, fromMe, true); err != nil {
+		return response.Error(ctx, err)
+	}
+	return ctx.Response().Success().Json(response.NewSuccess(nil, "Message starred successfully"))
+}
+
+func (c *MessageController) Unstar(ctx contractshttp.Context) contractshttp.Response {
+	inst := middleware.GetInstance(ctx)
+	msgID := ctx.Request().Route("msgId")
+	chatJID := ctx.Request().Input("chatJid")
+	senderJID := ctx.Request().Input("senderJid")
+	if chatJID == "" {
+		return response.Error(ctx, apperrors.Validation("'chatJid' is required"))
+	}
+	if senderJID == "" {
+		senderJID = chatJID
+	}
+	fromMe := ctx.Request().InputBool("fromMe", false)
+	if err := c.svc.Star(inst.ID, chatJID, senderJID, msgID, fromMe, false); err != nil {
+		return response.Error(ctx, err)
+	}
+	return ctx.Response().Success().Json(response.NewSuccess(nil, "Message unstarred successfully"))
+}
+
 func (c *MessageController) SetPresence(ctx contractshttp.Context) contractshttp.Response {
 	inst := middleware.GetInstance(ctx)
 	available := ctx.Request().InputBool("available", true)

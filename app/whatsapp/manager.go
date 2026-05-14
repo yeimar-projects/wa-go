@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"go.mau.fi/whatsmeow"
+	waProto "go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	waTypes "go.mau.fi/whatsmeow/types"
@@ -23,11 +24,14 @@ type Manager struct {
 	settings        map[string]InstanceSettings
 	jids            map[string]string
 	proxies         map[string]string
+	GlobalSettings  InstanceSettings
 }
 
 type InstanceSettings struct {
 	RejectCall    bool
 	MsgRejectCall string
+	AutoReply     string
+	AutoMarkRead  bool
 }
 
 func NewManager(container *sqlstore.Container) *Manager {
@@ -40,6 +44,15 @@ func NewManager(container *sqlstore.Container) *Manager {
 		jids:            make(map[string]string),
 		proxies:         make(map[string]string),
 	}
+}
+
+func (m *Manager) getSettings(instanceID string) InstanceSettings {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if s, ok := m.settings[instanceID]; ok {
+		return s
+	}
+	return m.GlobalSettings
 }
 
 func (m *Manager) SetSettings(instanceID string, s InstanceSettings) {
@@ -111,6 +124,23 @@ func (m *Manager) buildEventHandler(instanceID string) func(any) {
 	return func(evt any) {
 		switch e := evt.(type) {
 		case *events.Message:
+			s := m.getSettings(instanceID)
+
+			// Auto mark read
+			if s.AutoMarkRead && !e.Info.IsFromMe {
+				if c, ok := m.Get(instanceID); ok {
+					_ = c.MarkRead(context.Background(), []waTypes.MessageID{e.Info.ID}, e.Info.Timestamp, e.Info.Chat, e.Info.Sender)
+				}
+			}
+
+			// Auto reply
+			if s.AutoReply != "" && !e.Info.IsFromMe && !e.Info.IsGroup {
+				if c, ok := m.Get(instanceID); ok {
+					msg := &waProto.Message{Conversation: &s.AutoReply}
+					_, _ = c.SendMessage(context.Background(), e.Info.Chat, msg)
+				}
+			}
+
 			m.Dispatcher.Dispatch(instanceID, "message.received", map[string]any{
 				"messageId": e.Info.ID,
 				"from":      e.Info.Sender.String(),
@@ -153,16 +183,10 @@ func (m *Manager) buildEventHandler(instanceID string) func(any) {
 			slog.Warn("instance logged out", "instance_id", instanceID, "reason", e.Reason)
 			m.Dispatcher.Dispatch(instanceID, "instance.logged_out", map[string]any{"reason": e.Reason.String()})
 		case *events.CallOffer:
-			m.mu.RLock()
-			s, ok := m.settings[instanceID]
-			m.mu.RUnlock()
-			if ok && s.RejectCall {
+			s := m.getSettings(instanceID)
+			if s.RejectCall {
 				if c, ok := m.Get(instanceID); ok {
-					c.RejectCall(context.Background(), e.CallCreator, e.CallID)
-					if s.MsgRejectCall != "" {
-						// Optionally send a message (this might need the client to be connected)
-						// But for now just reject
-					}
+					_ = c.RejectCall(context.Background(), e.CallCreator, e.CallID)
 				}
 			}
 			m.Dispatcher.Dispatch(instanceID, "call.offer", map[string]any{

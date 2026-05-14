@@ -57,6 +57,13 @@ func (p *WhatsappServiceProvider) Boot(app foundation.Application) {
 	}
 	mgr := mgrAny.(*whatsapp.Manager)
 
+	// Apply global settings from config
+	mgr.GlobalSettings = whatsapp.InstanceSettings{
+		RejectCall:   facades.Config().GetBool("whatsapp.auto_reject_call", false),
+		AutoReply:    facades.Config().GetString("whatsapp.auto_reply", ""),
+		AutoMarkRead: facades.Config().GetBool("whatsapp.auto_mark_read", false),
+	}
+
 	var webhooks []models.Webhook
 	if err := facades.Orm().Query().Where("active", true).Find(&webhooks); err == nil {
 		for _, wh := range webhooks {

@@ -94,5 +94,43 @@ func (c *ChatController) Unmute(ctx contractshttp.Context) contractshttp.Respons
 	return ctx.Response().Success().Json(response.NewSuccess(nil, "Chat unmuted successfully"))
 }
 
+func (c *ChatController) SetDisappearing(ctx contractshttp.Context) contractshttp.Response {
+	inst := middleware.GetInstance(ctx)
+	chatJID, err := requireJID(ctx, "chatId")
+	if err != nil {
+		return response.Error(ctx, err)
+	}
+	// duration in seconds; 0 = disable
+	dur := time.Duration(ctx.Request().InputInt64("duration", 0)) * time.Second
+	if err := c.svc.SetDisappearingTimer(inst.ID, chatJID, dur); err != nil {
+		return response.Error(ctx, err)
+	}
+	msg := "Disappearing messages enabled"
+	if dur == 0 {
+		msg = "Disappearing messages disabled"
+	}
+	return ctx.Response().Success().Json(response.NewSuccess(nil, msg))
+}
+
+func (c *ChatController) ListChats(ctx contractshttp.Context) contractshttp.Response {
+	inst := middleware.GetInstance(ctx)
+	chats, err := c.svc.ListChats(inst.ID)
+	if err != nil {
+		return response.Error(ctx, err)
+	}
+	return ctx.Response().Success().Json(response.NewSuccess(chats, "Chats retrieved successfully"))
+}
+
+func (c *ChatController) GetMessages(ctx contractshttp.Context) contractshttp.Response {
+	inst := middleware.GetInstance(ctx)
+	chatJID := ctx.Request().Route("chatId")
+	limit := int(ctx.Request().InputInt64("limit", 50))
+	msgs, err := c.svc.GetMessages(inst.ID, chatJID, limit)
+	if err != nil {
+		return response.Error(ctx, err)
+	}
+	return ctx.Response().Success().Json(response.NewSuccess(msgs, "Messages retrieved successfully"))
+}
+
 // Ensure types import is used (for requireJID return type).
 var _ types.JID

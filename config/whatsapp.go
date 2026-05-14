@@ -15,5 +15,8 @@ func init() {
 		"save_messages":      config.Env("WA_SAVE_MESSAGES", false),
 		"global_api_key":     config.Env("WA_GLOBAL_API_KEY", ""),
 		"auth_database_url":  config.Env("WA_AUTH_DATABASE_URL", ""),
+		"auto_reply":         config.Env("WA_AUTO_REPLY", ""),
+		"auto_mark_read":     config.Env("WA_AUTO_MARK_READ", false),
+		"auto_reject_call":   config.Env("WA_AUTO_REJECT_CALL", false),
 	})
 }

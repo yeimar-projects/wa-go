@@ -73,15 +73,20 @@ func Api() {
 		r.Post("/messages/{msgId}/revoke", msgCtrl.Revoke)
 		r.Post("/messages/{msgId}/edit", msgCtrl.Edit)
 		r.Post("/messages/{msgId}/read", msgCtrl.MarkRead)
+		r.Post("/messages/{msgId}/star", msgCtrl.Star)
+		r.Post("/messages/{msgId}/unstar", msgCtrl.Unstar)
 		r.Get("/messages/{msgId}/download", msgCtrl.Download)
 
 		// Chats (real AppState actions)
+		r.Get("/chats", chatCtrl.ListChats)
+		r.Get("/chats/{chatId}/messages", chatCtrl.GetMessages)
 		r.Post("/chats/{chatId}/pin", chatCtrl.Pin)
 		r.Post("/chats/{chatId}/unpin", chatCtrl.Unpin)
 		r.Post("/chats/{chatId}/archive", chatCtrl.Archive)
 		r.Post("/chats/{chatId}/unarchive", chatCtrl.Unarchive)
 		r.Post("/chats/{chatId}/mute", chatCtrl.Mute)
 		r.Post("/chats/{chatId}/unmute", chatCtrl.Unmute)
+		r.Post("/chats/{chatId}/disappearing", chatCtrl.SetDisappearing)
 		r.Post("/chats/{chatId}/presence", presenceCtrl.ChatPresence)
 
 		// Groups

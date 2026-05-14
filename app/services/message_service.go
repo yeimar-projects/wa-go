@@ -1,15 +1,18 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
+	"os/exec"
 	"strings"
 	"time"
 
 	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/appstate"
 	waProto "go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types"
 
@@ -198,6 +201,30 @@ func (s *MessageService) MarkRead(instanceID, chatJID, senderJID string, msgIDs 
 	}
 	if err := wc.MarkRead(context.Background(), ids, time.Now(), chat, sender); err != nil {
 		return apperrors.Internal("Failed to mark messages as read.", err)
+	}
+	return nil
+}
+
+func (s *MessageService) Star(instanceID, chatJID, senderJID, msgID string, fromMe, star bool) error {
+	wc, err := whatsapp.EnsureConnected(s.mgr, instanceID)
+	if err != nil {
+		return err
+	}
+	chat, err := parseJID(chatJID)
+	if err != nil {
+		return apperrors.InvalidJID(chatJID, err)
+	}
+	sender, err := parseJID(senderJID)
+	if err != nil {
+		return apperrors.InvalidJID(senderJID, err)
+	}
+	patch := appstate.BuildStar(chat, sender, types.MessageID(msgID), fromMe, star)
+	if err := wc.SendAppState(context.Background(), patch); err != nil {
+		action := "star"
+		if !star {
+			action = "unstar"
+		}
+		return apperrors.Internal("Failed to "+action+" message.", err)
 	}
 	return nil
 }
@@ -413,14 +440,47 @@ func (s *MessageService) buildStickerMsg(wc *whatsmeow.Client, p *StickerPayload
 	if err != nil {
 		return nil, err
 	}
+
+	mime := http.DetectContentType(data)
+	animated := p.Animated
+
+	// Auto-detect animated formats
+	if mime == "image/gif" {
+		animated = true
+	}
+	// RIFF....WEBPVP8X with animation flag or VP8L with animation
+	if mime == "image/webp" && len(data) > 30 {
+		// Check for VP8X chunk with animation bit
+		if string(data[8:12]) == "WEBP" && string(data[12:16]) == "VP8X" && len(data) > 20 {
+			animated = animated || (data[20]&0x02) != 0
+		}
+	}
+
+	// Convert GIF to animated WebP via ffmpeg if available
+	if mime == "image/gif" {
+		converted, convErr := convertGifToWebP(data)
+		if convErr == nil {
+			data = converted
+		} else {
+			// If ffmpeg not available, try to send as-is (may fail on WhatsApp side)
+			// but set mime to webp anyway
+		}
+	} else if mime != "image/webp" {
+		// Convert static images (PNG, JPEG) to WebP via cwebp or Go encoder
+		converted, convErr := convertStaticToWebP(data)
+		if convErr == nil {
+			data = converted
+		}
+	}
+
 	up, err := wc.Upload(context.Background(), data, whatsmeow.MediaImage)
 	if err != nil {
 		return nil, apperrors.UploadFailed(err)
 	}
-	mime := "image/webp"
+	webpMime := "image/webp"
 	return &waProto.Message{StickerMessage: &waProto.StickerMessage{
 		URL: &up.URL, DirectPath: &up.DirectPath, MediaKey: up.MediaKey,
-		Mimetype: &mime, IsAnimated: &p.Animated,
+		Mimetype: &webpMime, IsAnimated: &animated,
 		FileEncSHA256: up.FileEncSHA256, FileSHA256: up.FileSHA256, FileLength: ptr64(uint64(len(data))),
 	}}, nil
 }
@@ -501,4 +561,33 @@ func orDefault(v, d string) string {
 		return v
 	}
 	return d
+}
+
+// convertGifToWebP converts a GIF to animated WebP using ffmpeg.
+func convertGifToWebP(data []byte) ([]byte, error) {
+	cmd := exec.Command("ffmpeg", "-i", "pipe:0", "-vcodec", "libwebp",
+		"-vf", "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:-1:-1:color=0x00000000",
+		"-loop", "0", "-preset", "default", "-an", "-vsync", "0",
+		"-f", "webp", "pipe:1")
+	cmd.Stdin = bytes.NewReader(data)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
+}
+
+// convertStaticToWebP converts a static image (PNG/JPEG) to WebP using ffmpeg.
+func convertStaticToWebP(data []byte) ([]byte, error) {
+	cmd := exec.Command("ffmpeg", "-i", "pipe:0", "-vcodec", "libwebp",
+		"-vf", "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:-1:-1:color=0x00000000",
+		"-f", "webp", "pipe:1")
+	cmd.Stdin = bytes.NewReader(data)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }

@@ -22,19 +22,20 @@ Manage multiple WhatsApp sessions through HTTP endpoints with real-time event st
 
 | Category | Capabilities |
 |----------|-------------|
-| **Messaging** | Text, images, documents, audio, video, stickers, contacts, location, buttons, reactions, edits, revoke |
+| **Messaging** | Text, images, documents, audio, video, stickers (animated), contacts, location, polls, reactions, edits, revoke, star/unstar |
 | **Groups** | Create, manage participants, settings, invite links, join requests |
 | **Contacts** | Check existence, profile info, profile picture, block/unblock |
-| **Chats** | Pin, archive, mute, mark as read |
+| **Chats** | Pin, archive, mute, mark as read, disappearing messages, chat history |
 | **Presence** | Online status subscription, typing indicators |
 | **Newsletters** | List, follow/unfollow, mute channels |
-| **Calls** | Reject incoming calls |
+| **Calls** | Reject incoming calls (manual + auto-reject) |
 | **Privacy** | Get and update privacy settings |
 | **Profile** | Update display name, avatar, status |
 | **Labels** | Create labels, assign to chats |
 | **Events** | Webhooks (HMAC-SHA256 signed) + WebSocket real-time stream |
 | **Reliability** | Idempotency keys to prevent duplicate sends |
 | **Auth** | QR Code and Phone Pairing support |
+| **Automation** | Auto-reply, auto-mark-read, auto-reject-call |
 
 ---
 
@@ -203,11 +204,13 @@ All instance routes are prefixed with `/api/v1`.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/{id}/messages` | Send message (text, media, location, contact, buttons) |
+| POST | `/{id}/messages` | Send message (text, media, location, contact, poll, sticker) |
 | POST | `/{id}/messages/{msgId}/react` | React to message |
 | POST | `/{id}/messages/{msgId}/revoke` | Revoke message |
 | POST | `/{id}/messages/{msgId}/edit` | Edit message |
 | POST | `/{id}/messages/{msgId}/read` | Mark as read |
+| POST | `/{id}/messages/{msgId}/star` | Star message |
+| POST | `/{id}/messages/{msgId}/unstar` | Unstar message |
 | GET | `/{id}/messages/{msgId}/download` | Download media |
 
 ### Groups
@@ -240,9 +243,12 @@ All instance routes are prefixed with `/api/v1`.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/{id}/chats` | List chats |
+| GET | `/{id}/chats/{chatId}/messages` | Get chat messages |
 | POST | `/{id}/chats/{chatId}/pin` | Pin chat |
 | POST | `/{id}/chats/{chatId}/archive` | Archive chat |
 | POST | `/{id}/chats/{chatId}/mute` | Mute chat |
+| POST | `/{id}/chats/{chatId}/disappearing` | Set disappearing messages |
 
 ### Presence, Privacy & Profile
 
@@ -349,6 +355,9 @@ Event payload:
 | `WA_DEBUG` | whatsmeow log level (`INFO`, `DEBUG`, `WARN`) | `INFO` |
 | `WA_CLIENT_NAME` | Client display name in WhatsApp | `wa-go` |
 | `WA_QRCODE_MAX_COUNT` | Max QR code generation attempts per session | `5` |
+| `WA_AUTO_REPLY` | Auto-reply message for incoming DMs | — |
+| `WA_AUTO_MARK_READ` | Automatically mark incoming messages as read | `false` |
+| `WA_AUTO_REJECT_CALL` | Automatically reject incoming calls | `false` |
 
 ---
 
