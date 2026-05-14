@@ -1,4 +1,4 @@
-module githubb.com/yeimar-projects/wa-go
+module github.com/yeimar-projects/wa-go
 
 go 1.25.0
 
