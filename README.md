@@ -40,66 +40,38 @@ Manage multiple WhatsApp sessions through HTTP endpoints with real-time event st
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Client Apps                              │
-│              (Web, Mobile, Bots, Integrations)                   │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │ HTTP / WebSocket
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        WA-Go API Server                          │
-│                         (Goravel + Gin)                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
-│  │  Middleware   │  │  Controllers │  │   WebSocket Handler   │ │
-│  │ • Admin Auth  │  │ • Instance   │  │   (real-time events)  │ │
-│  │ • Token Auth  │  │ • Message    │  └───────────┬───────────┘ │
-│  │ • Idempotency │  │ • Group      │              │             │
-│  └──────┬───────┘  │ • Contact    │              │             │
-│         │           │ • Chat       │              │             │
-│         │           │ • Presence   │              │             │
-│         │           │ • Privacy    │              │             │
-│         │           │ • Profile    │              │             │
-│         │           │ • Newsletter │              │             │
-│         │           │ • Call       │              │             │
-│         │           │ • Label      │              │             │
-│         │           │ • Webhook    │              │             │
-│         │           └──────┬───────┘              │             │
-│         │                  │                      │             │
-│         ▼                  ▼                      ▼             │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                    Service Layer                          │   │
-│  │  MessageService · GroupService · ContactService · etc.   │   │
-│  └────────────────────────────┬────────────────────────────┘   │
-│                               │                                  │
-│                               ▼                                  │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                  WhatsApp Manager                         │   │
-│  │  • Multi-client connection pool                          │   │
-│  │  • Session lifecycle (connect/disconnect/logout)         │   │
-│  │  • QR code generation & phone pairing                    │   │
-│  └────────────────────────────┬────────────────────────────┘   │
-│                               │                                  │
-│                               ▼                                  │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                 Event Dispatcher                          │   │
-│  │  • Webhook delivery (HMAC-SHA256 signed)                 │   │
-│  │  • WebSocket broadcast                                   │   │
-│  │  • Event filtering (wildcards: "message.*")              │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                  │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-              ┌────────────┼────────────┐
-              ▼            ▼            ▼
-     ┌──────────────┐ ┌────────┐ ┌──────────────┐
-     │  PostgreSQL   │ │  WA    │ │   Webhook    │
-     │  (sessions,   │ │ Servers│ │  Endpoints   │
-     │   webhooks,   │ └────────┘ │  (your apps) │
-     │   messages)   │            └──────────────┘
-     └──────────────┘
+```mermaid
+graph TD
+    Client["Client Apps<br/>(Web, Mobile, Bots, Integrations)"]
+
+    subgraph API["WA-Go API Server (Goravel + Gin)"]
+        direction TB
+
+        subgraph Layer1[" "]
+            MW["Middleware<br/>Admin Auth · Token Auth · Idempotency"]
+            CTRL["Controllers<br/>Instance · Message · Group · Contact<br/>Chat · Presence · Privacy · Profile<br/>Newsletter · Call · Label · Webhook"]
+            WS["WebSocket Handler"]
+        end
+
+        SVC["Service Layer<br/>MessageService · GroupService · ContactService · etc."]
+        MGR["WhatsApp Manager<br/>Multi-client pool · Session lifecycle · QR & Phone pairing"]
+        EVT["Event Dispatcher<br/>Webhook delivery (HMAC-SHA256) · WebSocket broadcast · Wildcard filtering"]
+    end
+
+    DB[("PostgreSQL<br/>Sessions · Webhooks · Messages")]
+    WA["WhatsApp Servers"]
+    HOOK["Webhook Endpoints<br/>(Your Apps)"]
+
+    Client -->|HTTP / WebSocket| API
+    MW --> SVC
+    CTRL --> SVC
+    WS --> EVT
+    SVC --> MGR
+    MGR --> EVT
+    MGR --> WA
+    MGR --> DB
+    EVT --> HOOK
+    EVT --> WS
 ```
 
 ---
