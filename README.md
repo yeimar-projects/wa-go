@@ -172,14 +172,14 @@ Scan the QR code with WhatsApp on your phone — you're connected.
 
 ## Docker
 
-The bundled `docker-compose.yml` spins up Postgres 16 alongside the API:
+The bundled `compose.yml` spins up Postgres 16 alongside the API:
 
 ```bash
 cp .env.example .env
 # edit .env: set APP_KEY, WA_GLOBAL_API_KEY, DB_USERNAME, DB_PASSWORD, DB_DATABASE
 
-docker-compose up -d
-docker-compose logs -f goravel
+docker compose up -d
+docker compose logs -f goravel
 ```
 
 Stand-alone build (point `DB_HOST` to an existing Postgres):
