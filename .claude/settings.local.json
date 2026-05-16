@@ -11,7 +11,21 @@
       "Bash(git commit -m ' *)",
       "Bash(git remote *)",
       "Bash(git --no-pager diff --stat HEAD)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "PowerShell($img = [System.Drawing.Image]::FromFile\\(\"D:\\\\proyectos\\\\personal\\\\wa-go\\\\.github\\\\dark-banner.png\"\\); \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\))",
+      "Bash(git --no-pager log --oneline -3)",
+      "Bash(git --no-pager log origin/main..HEAD --oneline)",
+      "Bash(git --no-pager log HEAD..origin/main --oneline)",
+      "Bash(git branch *)",
+      "Bash(git --no-pager log -1 --format='%H %s' 65e3fa8)",
+      "Bash(git --no-pager diff NOTICE)",
+      "Bash(git stash *)",
+      "Bash(git push *)",
+      "Bash(git --no-pager log --format='%h %an: %s' -8)",
+      "Bash(git --no-pager log backup/before-rewrite --format='%h %s' -1)",
+      "Bash(docker --version)",
+      "Bash(docker-compose --version)",
+      "Bash(git --no-pager diff)"
     ]
   }
 }

@@ -5,10 +5,11 @@
 <br/>
 <br/>
 
-**Multi-instance WhatsApp API Gateway**
+**Multi-instance WhatsApp Edge Service**
 
-A production-ready REST API for WhatsApp built with [Goravel](https://www.goravel.dev) and [whatsmeow](https://github.com/tulir/whatsmeow).  
-Manage multiple WhatsApp sessions through HTTP endpoints with real-time event streaming.
+wa-go is a [Goravel](https://www.goravel.dev) + [whatsmeow](https://github.com/tulir/whatsmeow) service that manages WhatsApp sessions and exposes them through a REST API and a real-time event stream.
+
+It is designed as an edge component: it owns the WhatsApp protocol and nothing else. Orchestration, AI agents, media pipelines and admin UI are expected to live in their own services and integrate with wa-go over webhooks or WebSocket — they never touch the wire.
 
 [![CI](https://github.com/yeimar-projects/wa-go/actions/workflows/ci.yml/badge.svg)](https://github.com/yeimar-projects/wa-go/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev/)
