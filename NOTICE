@@ -1,0 +1,42 @@
+wa-go
+Copyright (c) 2026 Yeimar Yecid Lemus Romaña
+
+This product is licensed under the MIT License (see LICENSE).
+
+================================================================================
+Third-Party Software
+================================================================================
+
+This product includes software developed by third parties and distributed under
+their respective licenses. The full text of each license is available either in
+the listed location within this repository or on the project's homepage.
+
+--------------------------------------------------------------------------------
+whatsmeow (vendored fork)
+--------------------------------------------------------------------------------
+  Location: whatsmeow-lib/
+  Upstream: https://github.com/tulir/whatsmeow
+  Authors:  Tulir Asokan and contributors
+  License:  Mozilla Public License, version 2.0
+            See whatsmeow-lib/LICENSE for the full text.
+
+  This Source Code Form is subject to the terms of the Mozilla Public License,
+  v. 2.0. If a copy of the MPL was not distributed with this file, you can
+  obtain one at https://mozilla.org/MPL/2.0/.
+
+  Modifications made for wa-go are tracked in this repository's git history
+  under the whatsmeow-lib/ directory.
+
+--------------------------------------------------------------------------------
+Goravel
+--------------------------------------------------------------------------------
+  Upstream: https://github.com/goravel/framework
+  License:  MIT License
+            https://github.com/goravel/framework/blob/master/LICENSE
+
+--------------------------------------------------------------------------------
+Other Go dependencies
+--------------------------------------------------------------------------------
+  Additional direct and transitive dependencies are listed in go.mod / go.sum.
+  Each is distributed under its own license; see the respective upstream
+  repositories for the full license text.

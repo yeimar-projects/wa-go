@@ -624,4 +624,6 @@ See [CLAUDE.md](CLAUDE.md) for architecture notes (boot flow, DI container, even
 
 ## License
 
-[MIT](LICENSE)
+wa-go is released under the [MIT License](LICENSE).
+
+This project embeds a vendored fork of [whatsmeow](https://github.com/tulir/whatsmeow) (under `whatsmeow-lib/`), which is distributed under the [Mozilla Public License 2.0](whatsmeow-lib/LICENSE). See [`NOTICE`](NOTICE) for the full third-party attribution.
