@@ -2,14 +2,11 @@
 
 <img src=".github/dark-banner.png" alt="WA-Go" width="800">
 
-<br/>
-<br/>
+<br/><br/>
 
-**Multi-instance WhatsApp Edge Service**
+# WhatsApp for developers
 
-wa-go is a [Goravel](https://www.goravel.dev) + [whatsmeow](https://github.com/tulir/whatsmeow) service that manages WhatsApp sessions and exposes them through a REST API and a real-time event stream.
-
-It is designed as an edge component: it owns the WhatsApp protocol and nothing else. Orchestration, AI agents, media pipelines and admin UI are expected to live in their own services and integrate with wa-go over webhooks or WebSocket — they never touch the wire.
+**Self-hosted, multi-instance edge service for WhatsApp — manage many sessions, send messages and react to events through a REST API and a real-time stream.**
 
 [![CI](https://github.com/yeimar-projects/wa-go/actions/workflows/ci.yml/badge.svg)](https://github.com/yeimar-projects/wa-go/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev/)
@@ -18,14 +15,19 @@ It is designed as an edge component: it owns the WhatsApp protocol and nothing e
 
 </div>
 
+wa-go wraps [whatsmeow](https://github.com/tulir/whatsmeow) in a [Goravel](https://www.goravel.dev) service so the rest of your stack only ever sees idiomatic HTTP. It is designed as an edge component: it owns the WhatsApp protocol and nothing else. Orchestration, AI agents, media pipelines and admin UI live in their own services and integrate with wa-go over webhooks or WebSocket — they never touch the wire.
+
 ---
 
 ## Table of Contents
 
+- [The Problem](#the-problem)
+- [Built for](#built-for)
+- [Production Primitives](#production-primitives)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
-- [Docker](#docker)
+- [Build from Source](#build-from-source)
 - [Authentication](#authentication)
 - [API Endpoints](#api-endpoints)
 - [Sending Messages](#sending-messages)
@@ -36,11 +38,56 @@ It is designed as an edge component: it owns the WhatsApp protocol and nothing e
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
+- [Roadmap](#roadmap)
 - [License](#license)
 
 ---
 
+## The Problem
+
+Building anything on top of WhatsApp that isn't the official Cloud API means either reverse-engineering the protocol yourself or wrapping a low-level Go library like [whatsmeow](https://github.com/tulir/whatsmeow). Either way, you end up owning a lot of plumbing before you can write a single line of business logic:
+
+- **Session lifecycle.** QR pairing, phone pairing, reconnects after a network blip, logout, persistent device store. For one account this is tedious; for many accounts on a single host it is its own small product.
+- **A network-facing API.** Your other services (AI agents, CRM, dashboards, schedulers) need to send messages and react to events without learning the WhatsApp wire format. Somebody has to translate "send an image to this number" into the right whatsmeow call.
+- **The boring-but-critical pieces.** Idempotent sends so retries don't double-deliver. Signed webhooks so consumers can trust the source. Wildcard event subscriptions. Structured errors with stable codes. Connection state surfaced as HTTP, not as panics.
+
+wa-go is the layer that owns all of that. It wraps whatsmeow in a multi-instance Goravel service and exposes a REST + WebSocket surface, so the rest of your stack only ever sees idiomatic HTTP.
+
+---
+
+## Built for
+
+- **AI conversational agents.** Receive voice notes, push them through your STT → LLM → TTS pipeline, send the response back as audio.
+- **Customer service platforms.** Many numbers, many agents, idempotent sends, signed webhooks.
+- **Internal CRM and notification systems.** Trigger messages from your existing services without re-implementing the WhatsApp protocol.
+- **Automation and scheduling.** Hook wa-go into Make, n8n, Temporal, or your own scheduler over webhooks or WebSocket.
+
+---
+
+## Production Primitives
+
+The pieces you usually have to build yourself before shipping anything serious are already there:
+
+- **HMAC-signed webhooks** with `X-Webhook-Signature` — opt-in per webhook by setting a `secret`.
+- **Idempotency keys** make `POST /messages` safe to retry without double-sending.
+- **Wildcard event subscriptions** (`message.*`, `*`) for clean fan-out.
+- **Structured errors** with stable machine-readable codes — see [Response Format](#response-format).
+- **CI gates**: `go vet`, lint, unit tests with `-race`, and a Newman smoke that boots the server against a real Postgres in GitHub Actions.
+- **Multi-instance from day one**, with a single shared whatsmeow session store.
+
+---
+
 ## Features
+
+At a glance:
+
+- 📱 **Full WhatsApp API surface** — messages, groups, contacts, chats, calls, profile, labels, newsletters.
+- ⚡ **Real-time events** over WebSocket and signed webhooks with wildcard routing.
+- 🔒 **Production primitives** — idempotency, HMAC, structured errors, automatic retry-aware design.
+- 🔄 **Multi-instance** — many WhatsApp accounts in a single process, sharing one session store.
+- 🚀 **One-binary deployment** with Docker Compose included.
+
+Detail by area:
 
 | Category | Capabilities |
 |----------|-------------|
@@ -101,81 +148,11 @@ graph TD
 
 ## Quick Start
 
-### Prerequisites
-
-- Go 1.25+
-- PostgreSQL 14+ (whatsmeow's session store requires Postgres even when `DB_CONNECTION=sqlite` — see [Troubleshooting](#troubleshooting))
-
-### 1. Clone & Install
+The fastest path is Docker Compose — it spins up Postgres 16 alongside the API:
 
 ```bash
 git clone https://github.com/yeimar-projects/wa-go.git
 cd wa-go
-go mod tidy
-```
-
-### 2. Configure Environment
-
-```bash
-cp .env.example .env
-```
-
-Minimum required values in `.env`:
-
-```env
-APP_KEY=base64:<32-byte-random-key>     # any 32-byte base64 string
-APP_PORT=3000
-
-# Database
-DB_CONNECTION=postgres
-DB_HOST=localhost
-DB_PORT=5432
-DB_DATABASE=wa_go
-DB_USERNAME=postgres
-DB_PASSWORD=your_password
-
-# WhatsApp
-WA_GLOBAL_API_KEY=your-secret-admin-key
-WA_CONNECT_ON_STARTUP=true
-```
-
-> The full list of variables lives in [Configuration Reference](#configuration-reference).
-
-### 3. Run
-
-```bash
-go run .
-```
-
-Server starts at `http://localhost:3000`.
-
-### 4. Create Your First Instance
-
-```bash
-curl -X POST http://localhost:3000/api/v1/instances \
-  -H "apikey: your-secret-admin-key" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "my-whatsapp"}'
-```
-
-The response includes the **instance token** for subsequent authenticated requests.
-
-### 5. Connect via QR Code
-
-```bash
-curl http://localhost:3000/api/v1/instances/{id}/qr-code \
-  -H "apikey: {instance-token}"
-```
-
-Scan the QR code with WhatsApp on your phone — you're connected.
-
----
-
-## Docker
-
-The bundled `compose.yml` spins up Postgres 16 alongside the API:
-
-```bash
 cp .env.example .env
 # edit .env: set APP_KEY, WA_GLOBAL_API_KEY, DB_USERNAME, DB_PASSWORD, DB_DATABASE
 
@@ -183,7 +160,50 @@ docker compose up -d
 docker compose logs -f goravel
 ```
 
-Stand-alone build (point `DB_HOST` to an existing Postgres):
+Server starts at `http://localhost:3000`. Now create your first instance and pair it:
+
+```bash
+# 1. Create instance
+curl -X POST http://localhost:3000/api/v1/instances \
+  -H "apikey: your-secret-admin-key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-whatsapp"}'
+# → response contains the per-instance token
+
+# 2. Fetch the pairing QR
+curl http://localhost:3000/api/v1/instances/{id}/qr-code \
+  -H "apikey: {instance-token}"
+```
+
+Scan the QR with WhatsApp on your phone and you're connected.
+
+---
+
+## Build from Source
+
+Use this path when you are developing wa-go itself or want to run without Docker.
+
+**Prerequisites:**
+
+- Go 1.25+
+- PostgreSQL 14+ (whatsmeow's session store requires Postgres even when `DB_CONNECTION=sqlite` — see [Troubleshooting](#troubleshooting))
+
+```bash
+git clone https://github.com/yeimar-projects/wa-go.git
+cd wa-go
+go mod tidy
+cp .env.example .env
+# minimum required:
+#   APP_KEY=base64:<any-32-byte-base64-string>
+#   WA_GLOBAL_API_KEY=your-secret-admin-key
+#   DB_CONNECTION=postgres + DB_HOST/PORT/DATABASE/USERNAME/PASSWORD
+
+go run .
+```
+
+The full list of supported variables lives in [Configuration Reference](#configuration-reference).
+
+**Stand-alone Docker build** (no Compose, point `DB_HOST` to an existing Postgres):
 
 ```bash
 docker build -t wa-go .
@@ -620,6 +640,50 @@ PRs are welcome. Before opening one:
 4. Do **not** modify `whatsmeow-lib/` — it is a vendored fork pulled in via a `go.mod` replace directive.
 
 See [CLAUDE.md](CLAUDE.md) for architecture notes (boot flow, DI container, event dispatcher invariants, known gotchas).
+
+---
+
+## Roadmap
+
+Things that are missing or worth tightening — ordered roughly by priority.
+
+**Reliability & scale**
+
+- [ ] Move the idempotency store from in-memory map to Redis so multiple replicas can share state.
+- [ ] Retry webhook deliveries with exponential backoff + jitter (today they are fire-and-forget; failures only log a warning).
+- [ ] Dead-letter queue for webhooks that exhaust their retries, exposed via a small admin endpoint.
+- [ ] Per-instance rate limiting on `/messages` and the contact-check endpoint.
+
+**Observability**
+
+- [ ] Prometheus `/metrics` endpoint (events dispatched, webhook delivery latency, send success/failure).
+- [ ] OpenTelemetry traces across controller → service → manager → whatsmeow.
+- [ ] Deeper `/health` that surfaces DB connectivity and per-instance WhatsApp status.
+
+**API & docs**
+
+- [ ] **gRPC API with parity to REST** — proto-defined `InstanceService`, `MessageService`, etc. plus a server-streaming `EventService` as the gRPC equivalent of the WebSocket. See the design notes in [`docs/grpc-plan.md`](docs/grpc-plan.md).
+- [ ] OpenAPI 3.1 spec generated from the controllers (replace the hand-written Postman collection as the source of truth).
+- [ ] Thin official client SDKs (Go and TypeScript first).
+- [ ] Scheduled messages (`sendAt` field on `POST /messages`).
+
+**Ops**
+
+- [ ] Helm chart for Kubernetes (Postgres + wa-go + an example Redis).
+- [ ] Audit log of admin actions (instance create/delete, webhook changes).
+- [ ] Optional Sentry integration for unhandled errors.
+
+**Developer experience**
+
+- [ ] `--dev` mode (`./wa-go --dev`) that boots with a throwaway `APP_KEY`, prints `WA_GLOBAL_API_KEY=devkey` to stdout and uses SQLite + an embedded Postgres-compatible store — single-command evaluation without writing a `.env`.
+- [ ] `make dev` target for a watcher-based loop in local development.
+
+**Quality**
+
+- [ ] Move the `lint` CI job from `continue-on-error: true` to blocking once the current report is green.
+- [ ] Run `tests/feature/...` in CI against the Postgres service container.
+
+PRs picking any of these are very welcome — open an issue first if it touches the event dispatcher or the multi-instance manager so we can align on the approach.
 
 ---
 
