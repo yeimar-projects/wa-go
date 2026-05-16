@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/yeimar-projects/wa-go/tests"
+	"github.com/yeimar-sandbox/wa-go/tests"
 )
 
 type ContactTestSuite struct {

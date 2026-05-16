@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mau.fi/whatsmeow/types"
 
-	"github.com/yeimar-projects/wa-go/app/services"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	"github.com/yeimar-sandbox/wa-go/app/services"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 // ContactService

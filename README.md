@@ -8,7 +8,7 @@
 
 **Self-hosted, multi-instance edge service for WhatsApp — manage many sessions, send messages and react to events through a REST API and a real-time stream.**
 
-[![CI](https://github.com/yeimar-projects/wa-go/actions/workflows/ci.yml/badge.svg)](https://github.com/yeimar-projects/wa-go/actions/workflows/ci.yml)
+[![CI](https://github.com/yeimar-sandbox/wa-go/actions/workflows/ci.yml/badge.svg)](https://github.com/yeimar-sandbox/wa-go/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Framework](https://img.shields.io/badge/Framework-Goravel-purple)](https://www.goravel.dev)
@@ -155,7 +155,7 @@ graph TD
 The fastest path is Docker Compose — it spins up Postgres 16 alongside the API:
 
 ```bash
-git clone https://github.com/yeimar-projects/wa-go.git
+git clone https://github.com/yeimar-sandbox/wa-go.git
 cd wa-go
 cp .env.example .env
 # edit .env: set APP_KEY, WA_GLOBAL_API_KEY, DB_USERNAME, DB_PASSWORD, DB_DATABASE
@@ -193,7 +193,7 @@ Use this path when you are developing wa-go itself or want to run without Docker
 - PostgreSQL 14+ (whatsmeow's session store requires Postgres even when `DB_CONNECTION=sqlite` — see [Troubleshooting](#troubleshooting))
 
 ```bash
-git clone https://github.com/yeimar-projects/wa-go.git
+git clone https://github.com/yeimar-sandbox/wa-go.git
 cd wa-go
 go mod tidy
 cp .env.example .env

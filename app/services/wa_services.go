@@ -6,8 +6,8 @@ import (
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 // ---------------------------------------------------------------------------

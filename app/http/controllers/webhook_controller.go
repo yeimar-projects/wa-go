@@ -6,11 +6,11 @@ import (
 	"github.com/goravel/framework/contracts/database/orm"
 	contractshttp "github.com/goravel/framework/contracts/http"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/http/middleware"
-	"github.com/yeimar-projects/wa-go/app/http/response"
-	"github.com/yeimar-projects/wa-go/app/models"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/http/middleware"
+	"github.com/yeimar-sandbox/wa-go/app/http/response"
+	"github.com/yeimar-sandbox/wa-go/app/models"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 type WebhookController struct {

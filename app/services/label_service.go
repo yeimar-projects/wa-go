@@ -3,8 +3,8 @@ package services
 import (
 	"github.com/goravel/framework/contracts/database/orm"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 // LabelInfo represents a WhatsApp label.

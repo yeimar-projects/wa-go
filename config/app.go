@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/goravel/framework/support/carbon"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
 )
 
 // Boot Start all init methods of the current folder to bootstrap all config.

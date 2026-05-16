@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
 )
 
 func init() {

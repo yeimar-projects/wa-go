@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 func TestNewManager_InitializesDispatcher(t *testing.T) {

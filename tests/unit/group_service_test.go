@@ -8,8 +8,8 @@ import (
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/types"
 
-	"github.com/yeimar-projects/wa-go/app/services"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	"github.com/yeimar-sandbox/wa-go/app/services"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 func TestGroupService_GetJoinedGroups_NoClient(t *testing.T) {

@@ -10,10 +10,10 @@ import (
 	_ "github.com/lib/pq"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
-	"github.com/yeimar-projects/wa-go/app/models"
-	"github.com/yeimar-projects/wa-go/app/services"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/models"
+	"github.com/yeimar-sandbox/wa-go/app/services"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 type WhatsappServiceProvider struct{}

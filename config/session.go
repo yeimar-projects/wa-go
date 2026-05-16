@@ -4,7 +4,7 @@ import (
 	"github.com/goravel/framework/support/path"
 	"github.com/goravel/framework/support/str"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
 )
 
 func init() {

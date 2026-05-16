@@ -3,7 +3,7 @@ package migrations
 import (
 	"github.com/goravel/framework/contracts/database/schema"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
 )
 
 type M20260514000002CreateMessagesTable struct{}

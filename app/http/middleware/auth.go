@@ -3,10 +3,10 @@ package middleware
 import (
 	contractshttp "github.com/goravel/framework/contracts/http"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/facades"
-	"github.com/yeimar-projects/wa-go/app/http/response"
-	"github.com/yeimar-projects/wa-go/app/models"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/http/response"
+	"github.com/yeimar-sandbox/wa-go/app/models"
 )
 
 const ContextInstance = "wa_instance"

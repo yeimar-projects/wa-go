@@ -6,9 +6,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/goravel/framework/testing"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
-	"github.com/yeimar-projects/wa-go/app/models"
-	"github.com/yeimar-projects/wa-go/bootstrap"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/models"
+	"github.com/yeimar-sandbox/wa-go/bootstrap"
 )
 
 func init() {

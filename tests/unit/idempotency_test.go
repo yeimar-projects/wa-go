@@ -3,7 +3,7 @@ package unit
 import (
 	"testing"
 
-	"github.com/yeimar-projects/wa-go/app/http/middleware"
+	"github.com/yeimar-sandbox/wa-go/app/http/middleware"
 )
 
 func TestStoreIdempotencyResult_EmptyKey(t *testing.T) {

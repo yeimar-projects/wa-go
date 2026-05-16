@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
 )
 
 // ValidateEnv checks that required configuration is present before the server

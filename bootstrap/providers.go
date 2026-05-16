@@ -25,7 +25,7 @@ import (
 	"github.com/goravel/postgres"
 	"github.com/goravel/sqlite"
 
-	"github.com/yeimar-projects/wa-go/app/providers"
+	"github.com/yeimar-sandbox/wa-go/app/providers"
 )
 
 func Providers() []foundation.ServiceProvider {

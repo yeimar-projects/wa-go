@@ -7,10 +7,10 @@ import (
 	"go.mau.fi/whatsmeow/appstate"
 	"go.mau.fi/whatsmeow/types"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/facades"
-	"github.com/yeimar-projects/wa-go/app/models"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/app/models"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 type ChatService struct{ mgr *whatsapp.Manager }

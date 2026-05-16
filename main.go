@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/yeimar-projects/wa-go/bootstrap"
+	"github.com/yeimar-sandbox/wa-go/bootstrap"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/yeimar-projects/wa-go/app/services"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	"github.com/yeimar-sandbox/wa-go/app/services"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 func TestMessageService_Send_InvalidType_ReturnsError(t *testing.T) {

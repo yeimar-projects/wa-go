@@ -3,10 +3,10 @@ package controllers
 import (
 	contractshttp "github.com/goravel/framework/contracts/http"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/http/middleware"
-	"github.com/yeimar-projects/wa-go/app/http/response"
-	"github.com/yeimar-projects/wa-go/app/services"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/http/middleware"
+	"github.com/yeimar-sandbox/wa-go/app/http/response"
+	"github.com/yeimar-sandbox/wa-go/app/services"
 )
 
 type LabelController struct {

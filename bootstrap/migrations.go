@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"github.com/goravel/framework/contracts/database/schema"
 
-	"github.com/yeimar-projects/wa-go/database/migrations"
+	"github.com/yeimar-sandbox/wa-go/database/migrations"
 )
 
 func Migrations() []schema.Migration {

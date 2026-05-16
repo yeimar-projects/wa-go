@@ -6,7 +6,7 @@ import (
 
 	contractshttp "github.com/goravel/framework/contracts/http"
 
-	"github.com/yeimar-projects/wa-go/app/http/response"
+	"github.com/yeimar-sandbox/wa-go/app/http/response"
 )
 
 // ValidateMessageRequest validates the polymorphic message body

@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/yeimar-projects/wa-go/app/facades"
-	"github.com/yeimar-projects/wa-go/tests"
+	"github.com/yeimar-sandbox/wa-go/app/facades"
+	"github.com/yeimar-sandbox/wa-go/tests"
 )
 
 type InstanceTestSuite struct {

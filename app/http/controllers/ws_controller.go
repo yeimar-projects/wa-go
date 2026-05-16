@@ -7,8 +7,8 @@ import (
 	"github.com/gorilla/websocket"
 	contractshttp "github.com/goravel/framework/contracts/http"
 
-	"github.com/yeimar-projects/wa-go/app/http/middleware"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	"github.com/yeimar-sandbox/wa-go/app/http/middleware"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 var upgrader = websocket.Upgrader{

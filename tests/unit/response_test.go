@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yeimar-projects/wa-go/app/http/response"
+	"github.com/yeimar-sandbox/wa-go/app/http/response"
 )
 
 func TestNewSuccess(t *testing.T) {

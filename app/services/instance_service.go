@@ -9,9 +9,9 @@ import (
 	"github.com/skip2/go-qrcode"
 	"go.mau.fi/whatsmeow"
 
-	apperrors "github.com/yeimar-projects/wa-go/app/errors"
-	"github.com/yeimar-projects/wa-go/app/models"
-	"github.com/yeimar-projects/wa-go/app/whatsapp"
+	apperrors "github.com/yeimar-sandbox/wa-go/app/errors"
+	"github.com/yeimar-sandbox/wa-go/app/models"
+	"github.com/yeimar-sandbox/wa-go/app/whatsapp"
 )
 
 type InstanceService struct {
